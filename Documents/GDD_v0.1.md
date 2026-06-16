@@ -240,7 +240,69 @@ Accuracy = (PERFECT×1.0 + GREAT×0.8 + GOOD×0.5) / 전체 노트 수 × 100
 
 ---
 
-## 10. 기술 스택
+## 10. 채보 포맷 (Beatmap JSON)
+
+### 파일 구조
+
+```json
+{
+  "meta": {
+    "title": "곡 제목",
+    "artist": "아티스트",
+    "bpm": 120,
+    "audio_file": "res://audio/ep1_ch1_stage1.ogg",
+    "duration_ms": 180000,
+    "difficulty": "normal",
+    "lane_count": 4,
+    "preview_start_ms": 30000
+  },
+  "notes": [
+    { "time_ms": 1000, "lane": 2, "type": "tap" },
+    { "time_ms": 2000, "lane": 1, "type": "hold", "duration_ms": 800 },
+    { "time_ms": 3500, "lane": 3, "type": "slide", "duration_ms": 1200, "required_hits": 6 }
+  ]
+}
+```
+
+### meta 필드
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| title | string | 곡 제목 |
+| artist | string | 아티스트명 |
+| bpm | number | 기준 BPM |
+| audio_file | string | Godot 리소스 경로 (res://) |
+| duration_ms | number | 곡 전체 길이 (ms) |
+| difficulty | string | `easy` / `normal` / `hard` / `expert` |
+| lane_count | number | 레인 수 (4, 6, 8 중 하나) |
+| preview_start_ms | number | 곡 선택 화면 미리듣기 시작 위치 (ms) |
+
+### notes 배열 — 공통 필드
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| time_ms | number | 판정선 도달 시각 (곡 시작 기준 ms) |
+| lane | number | 레인 번호 (1-based) |
+| type | string | `tap` / `hold` / `slide` |
+
+### notes 배열 — 타입별 추가 필드
+
+| type | 추가 필드 | 타입 | 설명 |
+|------|-----------|------|------|
+| hold | duration_ms | number | 버튼을 누르고 있어야 하는 시간 (ms) |
+| slide | duration_ms | number | 슬라이드 전체 지속 시간 (ms) |
+| slide | required_hits | number | 성공에 필요한 연타 횟수 |
+
+### 파일 명명 규칙
+
+```
+ep{에피소드번호}_ch{챕터번호}_stage{스테이지번호}_{난이도}.json
+예) ep1_ch1_stage2_normal.json
+```
+
+---
+
+## 11. 기술 스택
 
 | 항목 | 선택 |
 |------|------|
@@ -253,7 +315,7 @@ Accuracy = (PERFECT×1.0 + GREAT×0.8 + GOOD×0.5) / 전체 노트 수 × 100
 
 ---
 
-## 11. 개발 마일스톤 (초안)
+## 12. 개발 마일스톤 (초안)
 
 | 단계 | 목표 |
 |------|------|
