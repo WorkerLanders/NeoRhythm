@@ -133,7 +133,7 @@ func _handle_click() -> void:
 	for note in _active_notes:
 		if not is_instance_valid(note):
 			continue
-		var delta := int(_current_ms) - note.time_ms
+		var delta: int = int(_current_ms) - note.time_ms
 		if abs(delta) < abs(best_delta):
 			best_delta = delta
 			best_note  = note
