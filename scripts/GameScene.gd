@@ -94,7 +94,7 @@ func _process(delta: float) -> void:
 	# Spawn notes
 	while _spawn_index < _notes_queue.size():
 		var nd: Dictionary = _notes_queue[_spawn_index]
-		var spawn_at := nd["time_ms"] - NOTE_TRAVEL_TIME * 1000.0
+		var spawn_at: float = nd["time_ms"] - NOTE_TRAVEL_TIME * 1000.0
 		if _current_ms >= spawn_at:
 			_spawn_note(nd)
 			_spawn_index += 1
