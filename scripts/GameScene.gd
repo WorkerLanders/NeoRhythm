@@ -7,7 +7,8 @@ const LANE_Y           : PackedFloat32Array = [200.0, 280.0, 360.0, 440.0]
 const LANE_H           : float = 80.0
 const JUDGMENT_SHOW_SEC: float = 0.5
 
-const CHART_PATH : String = "res://Resources/beatmaps/ep1_ch1_stage1.json"
+const CHART_PATH  : String = "res://Resources/beatmaps/ep1_ch1_stage1.json"
+const AUDIO_OFFSET_MS : float = 0.0  # 노트가 늦게 오면 음수, 빠르게 오면 양수로 조정
 
 var _chart         : Dictionary = {}
 var _score         : ScoreManager
@@ -82,7 +83,11 @@ func _process(delta: float) -> void:
 	if not _playing:
 		return
 
-	_current_ms = _audio.get_playback_position() * 1000.0
+	# AudioServer 레이턴시 보정 (Godot 권장 방식)
+	var playback_pos: float = _audio.get_playback_position()
+	playback_pos += AudioServer.get_time_since_last_mix()
+	playback_pos -= AudioServer.get_output_latency()
+	_current_ms = playback_pos * 1000.0 + AUDIO_OFFSET_MS
 
 	while _spawn_index < _notes_queue.size():
 		var nd: Dictionary = _notes_queue[_spawn_index]
