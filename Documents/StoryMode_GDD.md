@@ -59,6 +59,92 @@
 
 ---
 
+---
+
+## 스테이지 진행 & 해금 시스템
+
+### 초기 상태
+- **EP1 CH1 Stage1만 해금**, 나머지 모든 스테이지는 잠금 상태로 시작
+
+### 해금 조건
+현재 스테이지에서 **A 랭크 이상(정확도 ≥ 80%)** 달성 시 다음 스테이지가 해금된다.
+
+| 상황 | 해금 대상 |
+|------|-----------|
+| Stage1에서 A 이상 달성 | 같은 챕터의 Stage2 해금 |
+| Stage2에서 A 이상 달성 | 같은 챕터의 Stage3 해금 |
+| Stage3에서 A 이상 달성 | 같은 챕터의 Stage4 해금 |
+| Stage4(마지막)에서 A 이상 달성 | **다음 챕터의 Stage1 자동 해금** |
+| 에피소드 마지막 챕터 Stage4 달성 | 다음 에피소드 CH1 Stage1 해금 (추후 정의) |
+
+### 등급 기준 (정확도 % 기반)
+
+| 등급 | 정확도 범위 | 비고 |
+|------|------------|------|
+| S+   | 95% 이상   | |
+| S    | 90% 이상   | |
+| A    | 80% 이상   | **해금 최소 조건** |
+| B    | 70% 이상   | |
+| C    | 60% 이상   | |
+| D    | 60% 미만   | |
+
+A 미만(정확도 80% 미만) 시 현재 스테이지를 재도전할 수 있으나 다음 스테이지는 열리지 않는다.
+
+### 진행 데이터 저장 구조
+
+Godot `user://save_data.json` 경로에 저장.
+
+```json
+{
+  "stages": {
+    "ep1_ch1_stage1": {
+      "unlocked": true,
+      "best_accuracy": 97.5,
+      "best_grade": "S",
+      "best_score": 128500,
+      "play_count": 3
+    },
+    "ep1_ch1_stage2": {
+      "unlocked": false,
+      "best_accuracy": null,
+      "best_grade": null,
+      "best_score": 0,
+      "play_count": 0
+    }
+  }
+}
+```
+
+### 해금 처리 흐름 (의사코드)
+
+```
+on_stage_clear(episode, chapter, stage, result):
+    save_best_result(episode, chapter, stage, result)
+
+    if result.grade in [S+, S, A]:
+        next = get_next_stage(episode, chapter, stage)
+        if next exists:
+            unlock_stage(next)
+
+get_next_stage(ep, ch, stage):
+    if stage < 4:
+        return (ep, ch, stage + 1)       # 같은 챕터 다음 스테이지
+    elif next chapter exists in ep:
+        return (ep, ch + 1, 1)           # 다음 챕터 Stage1
+    elif next episode exists:
+        return (ep + 1, 1, 1)            # 다음 에피소드 CH1 Stage1
+    else:
+        return null                       # 마지막 스테이지
+```
+
+### UI 표현
+- **잠금 스테이지**: 자물쇠 아이콘 + 회색 처리
+- **해금 조건 툴팁**: "이전 스테이지에서 A 랭크 이상 달성 필요"
+- **클리어된 스테이지**: 달성 등급 뱃지(S+/S/A/B/C/D) 표시
+- **해금 직후**: 짧은 연출(빛 효과 등)로 다음 스테이지가 열리는 것을 강조
+
+---
+
 ## EP2. 그녀의 이야기
 
 > 미정
