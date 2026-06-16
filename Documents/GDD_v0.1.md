@@ -184,7 +184,86 @@ required_clicks = floor((duration_sec × BPM) / 60 × 0.5) + 1
 
 ---
 
-## 10. 기술 스택
+## 10. 채보 JSON 스키마
+
+### 설계 원칙
+- 시간 표현: **ms 절대값** 방식 (Godot `AudioStreamPlayer.get_playback_position() × 1000`과 직접 비교)
+- 레인 배정: 채보에 포함하지 않고 **런타임 랜덤 배정** (직전 노트와 다른 레인 보장)
+
+### 스키마 정의
+
+```json
+{
+  "meta": {
+    "title": "탄생, 그리고 소중함 - Stage 1",
+    "artist": "AI Generated (Suno)",
+    "bpm": 90,
+    "duration": 142.5,
+    "audio_file": "ep1_ch1_s1.ogg",
+    "charter": "dev",
+    "version": "1.0"
+  },
+  "notes": [
+    {
+      "id": 0,
+      "type": "tap",
+      "time": 1333
+    },
+    {
+      "id": 1,
+      "type": "hold",
+      "time": 3000,
+      "duration": 1500
+    },
+    {
+      "id": 2,
+      "type": "slide",
+      "time": 6000,
+      "duration": 2000
+    }
+  ]
+}
+```
+
+### 필드 설명
+
+**`meta`**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `title` | string | 곡/스테이지 제목 |
+| `bpm` | number | 곡 BPM (슬라이드 필요 클릭 수 계산에 사용) |
+| `duration` | number | 곡 전체 길이 (초) |
+| `audio_file` | string | 오디오 파일명 |
+| `charter` | string | 채보 제작자 |
+| `version` | string | 채보 버전 |
+
+**`notes` 배열**
+
+| 필드 | 타입 | 적용 노트 | 설명 |
+|------|------|-----------|------|
+| `id` | int | 전체 | 노트 고유 번호 (순서 보장) |
+| `type` | string | 전체 | `"tap"` / `"hold"` / `"slide"` |
+| `time` | int | 전체 | 판정선 도달 목표 시각 (ms) |
+| `duration` | int | hold, slide | 구간 길이 (ms) — tap은 생략 |
+
+### 레인 랜덤 배정 (Godot 구현 참고)
+
+```gdscript
+var last_lane = 0
+func get_random_lane() -> int:
+    var lane = randi() % 4 + 1
+    while lane == last_lane:
+        lane = randi() % 4 + 1
+    last_lane = lane
+    return lane
+```
+
+노트 스폰 시 `get_random_lane()`을 호출하여 레인을 결정한다.
+
+---
+
+## 11. 기술 스택
 
 | 항목 | 선택 |
 |------|------|
@@ -197,7 +276,7 @@ required_clicks = floor((duration_sec × BPM) / 60 × 0.5) + 1
 
 ---
 
-## 11. 개발 마일스톤 (초안)
+## 12. 개발 마일스톤 (초안)
 
 | 단계 | 목표 |
 |------|------|
