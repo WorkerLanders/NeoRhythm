@@ -29,11 +29,6 @@ jobs:
         with:
           lfs: false
 
-      - name: Install export templates
-        run: |
-          mkdir -p /root/.local/share/godot/export_templates/4.2.stable
-          cp -r /root/templates/* /root/.local/share/godot/export_templates/4.2.stable/
-
       - name: Create build output directory
         run: mkdir -p build/web
 
