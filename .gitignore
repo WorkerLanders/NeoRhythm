@@ -1,6 +1,7 @@
 # Godot
 .godot/
 *.uid
+build/
 
 # Python
 __pycache__/
