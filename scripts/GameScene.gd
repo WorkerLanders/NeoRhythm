@@ -7,7 +7,7 @@ const LANE_Y           : PackedFloat32Array = [200.0, 280.0, 360.0, 440.0]
 const LANE_H           : float = 80.0
 const JUDGMENT_SHOW_SEC: float = 0.5
 
-const CHART_PATH  : String = "res://Resources/beatmaps/ep1_ch1_stage1.json"
+const CHART_PATH  : String = "res://Resources/beatmaps/ep1_ch1_stage1_easy.json"
 const AUDIO_OFFSET_MS : float = 0.0  # 노트가 늦게 오면 음수, 빠르게 오면 양수로 조정
 
 var _chart         : Dictionary = {}

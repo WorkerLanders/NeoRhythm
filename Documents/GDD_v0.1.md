@@ -358,6 +358,8 @@ NeoRhythm은 두 가지 플레이 모드를 제공한다.
 - 에피소드 → 챕터 → 스테이지 순서로 순차 진행
 - 이전 스테이지 클리어 시 다음 스테이지 개방
 - 스테이지 클리어 시 해당 악곡이 **프리 플레이에 해금**됨
+- 각 스테이지는 **난이도 하나**만 배정 (플레이어 선택 없음)
+- 어느 스테이지에 어떤 난이도를 배정할지는 **스테이지 구성 기획 시 결정** (예: 스테이지 1~3 → Easy, 스테이지 4+ → Normal)
 
 ### 프리 플레이
 
@@ -454,6 +456,16 @@ NeoRhythm은 두 가지 플레이 모드를 제공한다.
 - 시간 표현: **ms 절대값** 방식 (Godot `AudioStreamPlayer.get_playback_position() × 1000`과 직접 비교)
 - 레인 배정: 채보에 포함하지 않고 **런타임 랜덤 배정** (직전 노트와 다른 레인 보장)
 
+### 파일 명명 규칙
+
+```
+ep{N}_ch{N}_stage{N}_{difficulty}.json
+```
+
+예시: `ep1_ch1_stage1_easy.json`, `ep1_ch2_stage3_normal.json`
+
+난이도 식별자: `easy` / `normal` / `hard` / `expert`
+
 ### 스키마 정의
 
 ```json
@@ -461,6 +473,7 @@ NeoRhythm은 두 가지 플레이 모드를 제공한다.
   "meta": {
     "title": "탄생, 그리고 소중함 - Stage 1",
     "artist": "AI Generated (Suno)",
+    "difficulty": "easy",
     "bpm": 90,
     "duration": 142.5,
     "audio_file": "ep1_ch1_s1.ogg",
@@ -490,6 +503,7 @@ NeoRhythm은 두 가지 플레이 모드를 제공한다.
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `title` | string | 곡/스테이지 제목 |
+| `difficulty` | string | 채보 난이도 (`"easy"` / `"normal"` / `"hard"` / `"expert"`) |
 | `bpm` | number | 곡 BPM |
 | `duration` | number | 곡 전체 길이 (초) |
 | `audio_file` | string | 오디오 파일명 |
