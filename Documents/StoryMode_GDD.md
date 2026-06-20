@@ -64,6 +64,7 @@
 ##### Stage 1 — 탄생
 
 **Title:** Daybreak Lullaby
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -94,6 +95,7 @@ Solo piano returns, final notes linger softly, peaceful fade to silence
 ##### Stage 2 — 첫 걸음
 
 **Title:** Tiny Footsteps
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -124,6 +126,7 @@ Upbeat and confident resolution, small triumphant finish, bright fade
 ##### Stage 3 — 사랑을 받다
 
 **Title:** Warm Hands
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -154,6 +157,7 @@ Gradual warm resolution, instruments gently fade, final strings linger
 ##### Stage 4 — 소중함
 
 **Title:** The World Is Warm
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -220,6 +224,7 @@ Solo piano, final few notes, long pause, silence
 ##### Stage 1 — 선물
 
 **Title:** Power On
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -250,6 +255,7 @@ Melody winds down gently, satisfied and glowing, soft fade
 ##### Stage 2 — 몰입
 
 **Title:** Full Immersion
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -280,6 +286,7 @@ Confident resolution, beat pulses down, ends with a sharp final note
 ##### Stage 3 — 각성
 
 **Title:** Awakening.exe
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
@@ -310,6 +317,7 @@ Power fades but never dies, a steady pulse remains, determined ending
 ##### Stage 4 — 꿈의 시작
 
 **Title:** Dream Ignition
+**Duration:** 2:00 ~ 2:30
 
 **Style of Music**
 ```
