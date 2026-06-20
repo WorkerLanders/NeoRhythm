@@ -50,18 +50,20 @@
 
 #### 스테이지 구성
 
-| 스테이지 | 서사 역할 | 장면 | 음악 방향 |
-|----------|----------|------|----------|
-| Stage 1 | **기** — 탄생 | 인천, 한 생명이 세상에 태어나다. 반짝이는 눈빛, 새로운 세계와의 첫 만남. | 조용하고 따뜻한 피아노. 새벽빛 같은 서정적 분위기 |
-| Stage 2 | **승** — 첫 걸음 | 대학교 운동장의 넓은 잔디밭. 작은 두 발로 앞을 향해 나아가는 연습. 넘어지고 일어서기를 반복. | 조심스럽고 귀여운 리듬. 점차 발걸음처럼 경쾌해지는 전개 |
-| Stage 3 | **전** — 사랑을 받다 | 지나가던 대학생들이 멈춰 서서 그에게 손을 내민다. 낯선 이들의 따뜻한 시선과 웃음. | 따뜻하고 포근하게 고조. 여러 악기가 합류하며 풍성해지는 느낌 |
-| Stage 4 | **결** — 소중함 | 사랑 속에서 무럭무럭 자라나는 그. 세상이 따뜻하다는 것을 온몸으로 배운 시간. | 잔잔하고 여운 있는 마무리. 희망적이고 포근한 엔딩 |
+| 스테이지 | 서사 역할 | 장면 | 음악 방향 | 곡 제목 |
+|----------|----------|------|----------|---------|
+| Stage 1 | **기** — 탄생 | 인천, 한 생명이 세상에 태어나다. 반짝이는 눈빛, 새로운 세계와의 첫 만남. | 조용하고 따뜻한 피아노. 새벽빛 같은 서정적 분위기 | **Daybreak Lullaby** |
+| Stage 2 | **승** — 첫 걸음 | 대학교 운동장의 넓은 잔디밭. 작은 두 발로 앞을 향해 나아가는 연습. 넘어지고 일어서기를 반복. | 조심스럽고 귀여운 리듬. 점차 발걸음처럼 경쾌해지는 전개 | **Tiny Footsteps** |
+| Stage 3 | **전** — 사랑을 받다 | 지나가던 대학생들이 멈춰 서서 그에게 손을 내민다. 낯선 이들의 따뜻한 시선과 웃음. | 따뜻하고 포근하게 고조. 여러 악기가 합류하며 풍성해지는 느낌 | **Warm Hands** |
+| Stage 4 | **결** — 소중함 | 사랑 속에서 무럭무럭 자라나는 그. 세상이 따뜻하다는 것을 온몸으로 배운 시간. | 잔잔하고 여운 있는 마무리. 희망적이고 포근한 엔딩 | **The World Is Warm** |
 
 #### Suno AI 프롬프트
 
 > Suno AI **Custom Mode** 기준. **Style of Music** 칸에 스타일 태그를, **Lyrics** 칸에 구조 메타태그를 입력하세요. 목표 길이: 2:00~2:30.
 
 ##### Stage 1 — 탄생
+
+**Title:** Daybreak Lullaby
 
 **Style of Music**
 ```
@@ -91,6 +93,8 @@ Solo piano returns, final notes linger softly, peaceful fade to silence
 
 ##### Stage 2 — 첫 걸음
 
+**Title:** Tiny Footsteps
+
 **Style of Music**
 ```
 playful piano, light percussion, innocent, cheerful, gradually upbeat, light orchestral, instrumental, no lyrics
@@ -119,6 +123,8 @@ Upbeat and confident resolution, small triumphant finish, bright fade
 
 ##### Stage 3 — 사랑을 받다
 
+**Title:** Warm Hands
+
 **Style of Music**
 ```
 warm orchestral, heartfelt, emotional build, rich strings, piano, woodwinds, sweeping cinematic, instrumental, no lyrics
@@ -146,6 +152,8 @@ Gradual warm resolution, instruments gently fade, final strings linger
 ```
 
 ##### Stage 4 — 소중함
+
+**Title:** The World Is Warm
 
 **Style of Music**
 ```
@@ -198,18 +206,20 @@ Solo piano, final few notes, long pause, silence
 
 #### 스테이지 구성
 
-| 스테이지 | 서사 역할 | 장면 | 음악 방향 |
-|----------|----------|------|----------|
-| Stage 1 | **기** — 선물 | 생일날, 할머니께서 PC를 선물하시다. 커다란 상자가 열리고 — 화면에 처음으로 불이 켜지는 순간. | 설레고 경이로운 분위기. 반짝이는 소리와 함께 호기심 가득한 가벼운 멜로디 |
-| Stage 2 | **승** — 몰입 | 컴퓨터 학원에서 모든 것을 빨아들이듯 배우는 그. 친구들 사이에서 단연 돋보이는 존재가 되다. | 활기차고 집중적인 리듬. 점점 자신감 있게 진행되는 경쾌한 전개 |
-| Stage 3 | **전** — 각성 | 컴퓨터 게임에 깊이 빠져드는 그. '나도 이걸 만들고 싶다'는 생각이 머릿속을 가득 채우다. | 감정이 고조되며 웅장해지는 전환. 무언가 각성하는 듯한 드라마틱한 상승 |
-| Stage 4 | **결** — 꿈의 시작 | 꿈이 태어난 순간. 그는 처음으로 스스로의 방향을 정하고 그 길을 향해 달리기 시작한다. | 희망차고 결의에 찬 마무리. 앞으로 나아가는 여정을 예고하는 힘 있는 엔딩 |
+| 스테이지 | 서사 역할 | 장면 | 음악 방향 | 곡 제목 |
+|----------|----------|------|----------|---------|
+| Stage 1 | **기** — 선물 | 생일날, 할머니께서 PC를 선물하시다. 커다란 상자가 열리고 — 화면에 처음으로 불이 켜지는 순간. | 설레고 경이로운 분위기. 반짝이는 소리와 함께 호기심 가득한 가벼운 멜로디 | **Power On** |
+| Stage 2 | **승** — 몰입 | 컴퓨터 학원에서 모든 것을 빨아들이듯 배우는 그. 친구들 사이에서 단연 돋보이는 존재가 되다. | 활기차고 집중적인 리듬. 점점 자신감 있게 진행되는 경쾌한 전개 | **Full Immersion** |
+| Stage 3 | **전** — 각성 | 컴퓨터 게임에 깊이 빠져드는 그. '나도 이걸 만들고 싶다'는 생각이 머릿속을 가득 채우다. | 감정이 고조되며 웅장해지는 전환. 무언가 각성하는 듯한 드라마틱한 상승 | **Awakening.exe** |
+| Stage 4 | **결** — 꿈의 시작 | 꿈이 태어난 순간. 그는 처음으로 스스로의 방향을 정하고 그 길을 향해 달리기 시작한다. | 희망차고 결의에 찬 마무리. 앞으로 나아가는 여정을 예고하는 힘 있는 엔딩 | **Dream Ignition** |
 
 #### Suno AI 프롬프트
 
 > Suno AI **Custom Mode** 기준. **Style of Music** 칸에 스타일 태그를, **Lyrics** 칸에 구조 메타태그를 입력하세요. 목표 길이: 2:00~2:30.
 
 ##### Stage 1 — 선물
+
+**Title:** Power On
 
 **Style of Music**
 ```
@@ -239,6 +249,8 @@ Melody winds down gently, satisfied and glowing, soft fade
 
 ##### Stage 2 — 몰입
 
+**Title:** Full Immersion
+
 **Style of Music**
 ```
 energetic electronic, chiptune, driving beat, focused, confident, upbeat, 8-bit influenced, synth melody, instrumental, no lyrics
@@ -267,6 +279,8 @@ Confident resolution, beat pulses down, ends with a sharp final note
 
 ##### Stage 3 — 각성
 
+**Title:** Awakening.exe
+
 **Style of Music**
 ```
 epic orchestral electronic hybrid, dramatic awakening, cinematic, powerful build, intense, triumphant, instrumental, no lyrics
@@ -294,6 +308,8 @@ Power fades but never dies, a steady pulse remains, determined ending
 ```
 
 ##### Stage 4 — 꿈의 시작
+
+**Title:** Dream Ignition
 
 **Style of Music**
 ```
