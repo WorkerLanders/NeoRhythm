@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeoRhythm 채보 에디터</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── 상단 컨트롤 바 ── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: #16213e;
+  border-bottom: 1px solid #0f3460;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+#toolbar label { font-size: 12px; color: #aaa; }
+#toolbar input[type=number] {
+  width: 64px; padding: 3px 5px;
+  background: #0f3460; border: 1px solid #1a4a8a;
+  color: #e0e0e0; border-radius: 4px; font-size: 13px;
+}
+#toolbar select {
+  padding: 3px 6px;
+  background: #0f3460; border: 1px solid #1a4a8a;
+  color: #e0e0e0; border-radius: 4px; font-size: 13px;
+}
+.btn {
+  padding: 4px 12px;
+  background: #0f3460; border: 1px solid #1a4a8a;
+  color: #e0e0e0; border-radius: 4px;
+  cursor: pointer; font-size: 13px;
+  transition: background 0.15s;
+}
+.btn:hover { background: #1a4a8a; }
+.btn.primary { background: #533483; border-color: #7b52b9; }
+.btn.primary:hover { background: #7b52b9; }
+.btn.danger { background: #7b0a2e; border-color: #c0133a; }
+.btn.danger:hover { background: #c0133a; }
+#lbl-time { font-size: 13px; font-variant-numeric: tabular-nums; color: #90caf9; min-width: 90px; }
+.sep { width: 1px; height: 20px; background: #0f3460; margin: 0 4px; }
+
+/* ── 메인 레이아웃 ── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── 좌측 패널 ── */
+#left-panel {
+  width: 200px;
+  flex-shrink: 0;
+  background: #16213e;
+  border-right: 1px solid #0f3460;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#left-panel h3 {
+  font-size: 12px;
+  color: #90caf9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.field { display: flex; flex-direction: column; gap: 3px; }
+.field label { font-size: 11px; color: #aaa; }
+.field input, .field select {
+  padding: 4px 6px;
+  background: #0f3460; border: 1px solid #1a4a8a;
+  color: #e0e0e0; border-radius: 4px; font-size: 12px;
+  width: 100%;
+}
+.field input[readonly] { color: #888; cursor: default; }
+#btn-save { margin-top: 4px; width: 100%; padding: 7px; }
+#btn-new  { width: 100%; padding: 5px; margin-top: 2px; }
+#note-count { font-size: 11px; color: #aaa; margin-top: 4px; text-align: center; }
+.divider { height: 1px; background: #0f3460; margin: 4px 0; }
+
+/* ── 우측: 캔버스 영역 ── */
+#right-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0d1117;
+}
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#timeline-canvas { display: block; cursor: crosshair; }
+#waveform-canvas { display: block; cursor: pointer; border-top: 1px solid #0f3460; }
+
+/* ── 드래그 오버레이 (오디오 드롭) ── */
+#drop-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(83,52,131,0.6);
+  align-items: center; justify-content: center;
+  font-size: 24px; color: #fff;
+  z-index: 100;
+  pointer-events: none;
+}
+#drop-overlay.active { display: flex; }
+
+/* ── 툴팁 ── */
+#tooltip {
+  position: fixed;
+  background: #16213e;
+  border: 1px solid #533483;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #e0e0e0;
+  pointer-events: none;
+  display: none;
+  z-index: 50;
+}
+</style>
+</head>
+<body>
+
+<!-- 드래그 오버레이 -->
+<div id="drop-overlay">🎵 오디오 파일을 놓으세요</div>
+<div id="tooltip"></div>
+
+<!-- 상단 컨트롤 바 -->
+<div id="toolbar">
+  <button class="btn primary" id="btn-open-audio">🎵 오디오 열기</button>
+  <input type="file" id="file-audio" accept="audio/*" style="display:none">
+  <div class="sep"></div>
+
+  <label>BPM</label>
+  <input type="number" id="inp-bpm" min="30" max="300" value="120" step="1">
+
+  <label>스냅</label>
+  <select id="sel-snap">
+    <option value="1">1박</option>
+    <option value="2">1/2박</option>
+    <option value="4" selected>1/4박</option>
+    <option value="8">1/8박</option>
+    <option value="0">없음</option>
+  </select>
+  <div class="sep"></div>
+
+  <button class="btn" id="btn-play">▶ 재생</button>
+  <button class="btn" id="btn-stop">■ 정지</button>
+  <div class="sep"></div>
+
+  <span id="lbl-time">00:00.000</span>
+  <div class="sep"></div>
+
+  <label style="font-size:11px;color:#888;">줌: Ctrl+휠 | 스크롤: 휠 | 재생: Space</label>
+</div>
+
+<!-- 메인 영역 -->
+<div id="main">
+  <!-- 좌측 패널 -->
+  <div id="left-panel">
+    <h3>메타 정보</h3>
+
+    <div class="field">
+      <label>제목</label>
+      <input type="text" id="meta-title" placeholder="Stage 1">
+    </div>
+    <div class="field">
+      <label>아티스트</label>
+      <input type="text" id="meta-artist" placeholder="Unknown">
+    </div>
+    <div class="field">
+      <label>난이도</label>
+      <select id="meta-difficulty">
+        <option value="easy">Easy</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Hard</option>
+        <option value="expert">Expert</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>BPM</label>
+      <input type="number" id="meta-bpm" readonly value="120">
+    </div>
+    <div class="field">
+      <label>오디오 파일</label>
+      <input type="text" id="meta-audio" readonly placeholder="(로드 후 자동 입력)">
+    </div>
+    <div class="field">
+      <label>채보 제작자</label>
+      <input type="text" id="meta-charter" placeholder="dev">
+    </div>
+    <div class="field">
+      <label>곡 길이 (초)</label>
+      <input type="text" id="meta-duration" readonly placeholder="(자동 산출)">
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn primary" id="btn-save">💾 JSON 저장</button>
+    <button class="btn danger"  id="btn-new">🗑 새 채보</button>
+    <div id="note-count">노트: 0개</div>
+  </div>
+
+  <!-- 우측 캔버스 영역 -->
+  <div id="right-area">
+    <div id="canvas-wrap">
+      <canvas id="timeline-canvas"></canvas>
+      <canvas id="waveform-canvas"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  상수
+// ════════════════════════════════════════════════
+const NOTE_TRACK_H  = 120;
+const WAVEFORM_H    = 80;
+const RULER_H       = 24;
+const NOTE_H        = 36;
+const NOTE_Y_CENTER = RULER_H + (NOTE_TRACK_H - NOTE_H) / 2;
+const TAP_W         = 6;
+const RESIZE_ZONE   = 10;
+const MIN_HOLD_MS   = 50;
+const WAVEFORM_BINS = 4000;
+const AUTOSAVE_INTERVAL_MS = 30000;
+const LS_KEY = 'neorhythm_editor_v1';
+
+// ════════════════════════════════════════════════
+//  상태
+// ════════════════════════════════════════════════
+const S = {
+  // 오디오
+  audioCtx: null,
+  audioBuffer: null,
+  sourceNode: null,
+  isPlaying: false,
+  playStartAt: 0,    // audioCtx.currentTime when play() was called
+  playOffsetMs: 0,   // ms offset at which play() was called
+
+  // 타임라인 뷰
+  zoom: 0.15,        // px per ms
+  scrollMs: 0,       // 타임라인 왼쪽 끝이 나타내는 시각 (ms)
+  totalDurationMs: 0,
+
+  // 노트
+  notes: [],         // { id, type, time, duration? }
+  nextId: 0,
+
+  // BPM / 스냅
+  bpm: 120,
+  snapDenom: 4,
+
+  // 파형
+  waveformData: null,  // Float32Array[WAVEFORM_BINS]
+
+  // 캔버스 크기
+  canvasW: 0,
+  canvasH: 0,
+
+  // 드래그 상태
+  drag: null,
+  /*
+    drag.mode:
+      'create-tap'   – 아직 drg 중, 거리 < MIN_HOLD_PX이면 탭으로 확정
+      'create-hold'  – 드래그 충분히 진행, hold 중
+      'move'         – 기존 노트 이동
+      'resize'       – hold 노트 끝점 조절
+      'seek'         – 파형 클릭으로 헤드 이동
+    drag.noteIdx, drag.startMs, drag.curMs, drag.origTime, drag.origDuration
+  */
+};
+
+// ════════════════════════════════════════════════
+//  DOM 참조
+// ════════════════════════════════════════════════
+const tlCanvas = document.getElementById('timeline-canvas');
+const wfCanvas = document.getElementById('waveform-canvas');
+const tlCtx    = tlCanvas.getContext('2d');
+const wfCtx    = wfCanvas.getContext('2d');
+const canvasWrap = document.getElementById('canvas-wrap');
+const lblTime  = document.getElementById('lbl-time');
+const inpBpm   = document.getElementById('inp-bpm');
+const selSnap  = document.getElementById('sel-snap');
+const metaBpm  = document.getElementById('meta-bpm');
+
+// ════════════════════════════════════════════════
+//  유틸
+// ════════════════════════════════════════════════
+function msToDisplay(ms) {
+  const m  = Math.floor(ms / 60000);
+  const s  = Math.floor((ms % 60000) / 1000);
+  const ms3 = Math.floor(ms % 1000);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms3).padStart(3,'0')}`;
+}
+
+function xToMs(x) {
+  return S.scrollMs + x / S.zoom;
+}
+
+function msToX(ms) {
+  return (ms - S.scrollMs) * S.zoom;
+}
+
+function snapMs(ms) {
+  if (S.snapDenom === 0 || S.bpm <= 0) return Math.round(ms);
+  const gridMs = 60000 / S.bpm / S.snapDenom;
+  return Math.round(ms / gridMs) * gridMs;
+}
+
+function getCurrentMs() {
+  if (!S.isPlaying) return S.playOffsetMs;
+  if (!S.audioCtx) return S.playOffsetMs;
+  const elapsed = (S.audioCtx.currentTime - S.playStartAt) * 1000;
+  return S.playOffsetMs + elapsed;
+}
+
+function clampScrollMs() {
+  const maxScroll = Math.max(0, S.totalDurationMs - S.canvasW / S.zoom);
+  S.scrollMs = Math.max(0, Math.min(S.scrollMs, maxScroll));
+}
+
+function updateNoteCount() {
+  document.getElementById('note-count').textContent =
+    `노트: ${S.notes.length}개 (탭:${S.notes.filter(n=>n.type==='tap').length} 홀드:${S.notes.filter(n=>n.type==='hold').length})`;
+}
+
+function syncBpmInputs() {
+  metaBpm.value = S.bpm;
+}
+
+// ════════════════════════════════════════════════
+//  캔버스 크기 조정
+// ════════════════════════════════════════════════
+function resizeCanvases() {
+  const wrap = canvasWrap.getBoundingClientRect();
+  S.canvasW = wrap.width;
+
+  tlCanvas.width  = wrap.width;
+  tlCanvas.height = RULER_H + NOTE_TRACK_H;
+
+  wfCanvas.width  = wrap.width;
+  wfCanvas.height = WAVEFORM_H;
+
+  S.canvasH = tlCanvas.height + wfCanvas.height;
+
+  drawAll();
+}
+
+// ════════════════════════════════════════════════
+//  그리기
+// ════════════════════════════════════════════════
+function drawAll() {
+  drawTimeline();
+  drawWaveform();
+}
+
+function drawTimeline() {
+  const W = tlCanvas.width;
+  const H = tlCanvas.height;
+  tlCtx.clearRect(0, 0, W, H);
+
+  // 배경
+  tlCtx.fillStyle = '#0d1117';
+  tlCtx.fillRect(0, 0, W, H);
+
+  // 노트 트랙 배경
+  tlCtx.fillStyle = '#111827';
+  tlCtx.fillRect(0, RULER_H, W, NOTE_TRACK_H);
+
+  drawBpmGrid(W, H);
+  drawRuler(W);
+  drawNotes(W);
+  drawPlayhead(H);
+}
+
+function drawBpmGrid(W, H) {
+  if (S.bpm <= 0) return;
+
+  // 1박 = beat, 표시할 세분화 단계
+  const beatMs = 60000 / S.bpm;
+
+  // 줌에 맞춰 적절한 세분화 선택
+  const subdivisions = [1, 2, 4, 8, 16];
+  let drawDenom = 1;
+  for (const d of subdivisions) {
+    if (beatMs / d * S.zoom >= 3) drawDenom = d;
+    else break;
+  }
+
+  const gridMs = beatMs / drawDenom;
+  const startBeat = Math.floor(S.scrollMs / gridMs);
+  const endBeat   = Math.ceil((S.scrollMs + W / S.zoom) / gridMs) + 1;
+
+  for (let i = startBeat; i <= endBeat; i++) {
+    const t = i * gridMs;
+    const x = msToX(t);
+    if (x < 0 || x > W) continue;
+
+    // 밝기 계산: 1박 경계 > 1/2박 > 그 외
+    const isOnBeat = (i % drawDenom === 0);
+    const isHalf   = (drawDenom >= 2 && i % (drawDenom / 2) === 0);
+    if (isOnBeat) {
+      tlCtx.strokeStyle = 'rgba(90,120,200,0.6)';
+      tlCtx.lineWidth = 1.5;
+    } else if (isHalf) {
+      tlCtx.strokeStyle = 'rgba(60,80,140,0.5)';
+      tlCtx.lineWidth = 1;
+    } else {
+      tlCtx.strokeStyle = 'rgba(40,55,100,0.4)';
+      tlCtx.lineWidth = 0.5;
+    }
+
+    tlCtx.beginPath();
+    tlCtx.moveTo(x, RULER_H);
+    tlCtx.lineTo(x, RULER_H + NOTE_TRACK_H);
+    tlCtx.stroke();
+  }
+}
+
+function drawRuler(W) {
+  tlCtx.fillStyle = '#16213e';
+  tlCtx.fillRect(0, 0, W, RULER_H);
+
+  // 눈금 간격: 화면에 ~10개 정도 표시
+  const rawStep = W / S.zoom / 10;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const candidates = [1, 2, 2.5, 5, 10].map(c => c * magnitude);
+  const stepMs = candidates.find(c => c >= rawStep) || candidates[candidates.length - 1];
+
+  const startMs = Math.floor(S.scrollMs / stepMs) * stepMs;
+
+  tlCtx.fillStyle = '#90caf9';
+  tlCtx.font = '10px monospace';
+  tlCtx.strokeStyle = 'rgba(144,202,249,0.4)';
+  tlCtx.lineWidth = 1;
+
+  for (let t = startMs; t <= S.scrollMs + W / S.zoom + stepMs; t += stepMs) {
+    const x = msToX(t);
+    if (x < 0 || x > W) continue;
+
+    tlCtx.beginPath();
+    tlCtx.moveTo(x, RULER_H - 8);
+    tlCtx.lineTo(x, RULER_H);
+    tlCtx.stroke();
+
+    const label = t >= 60000
+      ? `${Math.floor(t/60000)}:${String(Math.floor(t%60000/1000)).padStart(2,'0')}`
+      : `${(t/1000).toFixed(t < 1000 ? 2 : 1)}s`;
+    tlCtx.fillText(label, x + 3, RULER_H - 3);
+  }
+}
+
+function drawNotes(W) {
+  for (const note of S.notes) {
+    drawNote(note, W);
+  }
+}
+
+function drawNote(note, W) {
+  const x = msToX(note.time);
+
+  if (note.type === 'tap') {
+    const nx = x - TAP_W / 2;
+    if (nx > W + TAP_W || nx < -TAP_W) return;
+    tlCtx.fillStyle = '#90caf9';
+    tlCtx.shadowColor = '#90caf9';
+    tlCtx.shadowBlur = 8;
+    tlCtx.fillRect(nx, NOTE_Y_CENTER, TAP_W, NOTE_H);
+    tlCtx.shadowBlur = 0;
+  } else {
+    // hold
+    const dur = note.duration || 0;
+    const x2  = msToX(note.time + dur);
+    const nx  = Math.max(-2, x);
+    const nx2 = Math.min(W + 2, x2);
+    if (nx2 < 0 || nx > W) return;
+    const hw  = nx2 - nx;
+
+    tlCtx.fillStyle = 'rgba(83,52,131,0.5)';
+    tlCtx.fillRect(nx, NOTE_Y_CENTER, hw, NOTE_H);
+
+    // 시작 바
+    tlCtx.fillStyle = '#c084fc';
+    tlCtx.shadowColor = '#c084fc';
+    tlCtx.shadowBlur = 8;
+    tlCtx.fillRect(x - TAP_W / 2, NOTE_Y_CENTER, TAP_W, NOTE_H);
+    tlCtx.shadowBlur = 0;
+
+    // 끝 바
+    tlCtx.fillStyle = '#a855f7';
+    tlCtx.shadowColor = '#a855f7';
+    tlCtx.shadowBlur = 6;
+    tlCtx.fillRect(x2 - TAP_W / 2, NOTE_Y_CENTER, TAP_W, NOTE_H);
+    tlCtx.shadowBlur = 0;
+
+    // 선
+    tlCtx.strokeStyle = '#7c3aed';
+    tlCtx.lineWidth = 3;
+    tlCtx.beginPath();
+    tlCtx.moveTo(x, NOTE_Y_CENTER + NOTE_H / 2);
+    tlCtx.lineTo(x2, NOTE_Y_CENTER + NOTE_H / 2);
+    tlCtx.stroke();
+  }
+}
+
+function drawPlayhead(H) {
+  const curMs = getCurrentMs();
+  const x = msToX(curMs);
+  if (x < 0 || x > S.canvasW) return;
+
+  tlCtx.strokeStyle = 'rgba(255,200,0,0.9)';
+  tlCtx.lineWidth = 2;
+  tlCtx.setLineDash([4, 3]);
+  tlCtx.beginPath();
+  tlCtx.moveTo(x, 0);
+  tlCtx.lineTo(x, H);
+  tlCtx.stroke();
+  tlCtx.setLineDash([]);
+
+  // 삼각형 헤드
+  tlCtx.fillStyle = '#ffc800';
+  tlCtx.beginPath();
+  tlCtx.moveTo(x - 6, 0);
+  tlCtx.lineTo(x + 6, 0);
+  tlCtx.lineTo(x, 10);
+  tlCtx.fill();
+}
+
+function drawWaveform() {
+  const W = wfCanvas.width;
+  const H = wfCanvas.height;
+  wfCtx.clearRect(0, 0, W, H);
+
+  wfCtx.fillStyle = '#090d14';
+  wfCtx.fillRect(0, 0, W, H);
+
+  if (!S.waveformData || S.totalDurationMs <= 0) {
+    wfCtx.fillStyle = '#1a2744';
+    wfCtx.fillRect(0, H/2 - 1, W, 2);
+    wfCtx.fillStyle = '#333';
+    wfCtx.font = '12px sans-serif';
+    wfCtx.textAlign = 'center';
+    wfCtx.fillText('오디오를 로드하면 파형이 표시됩니다', W/2, H/2 + 4);
+    wfCtx.textAlign = 'left';
+    return;
+  }
+
+  const midY = H / 2;
+  const amp  = H * 0.45;
+
+  // 현재 보이는 시간 범위 → 파형 빈 인덱스로 변환
+  const visStartMs = S.scrollMs;
+  const visEndMs   = S.scrollMs + W / S.zoom;
+
+  wfCtx.fillStyle = '#1e4a8a';
+  for (let px = 0; px < W; px++) {
+    const t  = xToMs(px);
+    const t2 = xToMs(px + 1);
+    const i1 = Math.floor(t  / S.totalDurationMs * WAVEFORM_BINS);
+    const i2 = Math.ceil(t2  / S.totalDurationMs * WAVEFORM_BINS);
+    if (i1 >= WAVEFORM_BINS) continue;
+
+    let peak = 0;
+    for (let i = Math.max(0, i1); i < Math.min(WAVEFORM_BINS, i2); i++) {
+      peak = Math.max(peak, S.waveformData[i]);
+    }
+    const h = peak * amp;
+    wfCtx.fillRect(px, midY - h, 1, h * 2);
+  }
+
+  // 재생 헤드 라인
+  const curMs = getCurrentMs();
+  const px = msToX(curMs);
+  if (px >= 0 && px <= W) {
+    wfCtx.strokeStyle = 'rgba(255,200,0,0.8)';
+    wfCtx.lineWidth = 2;
+    wfCtx.beginPath();
+    wfCtx.moveTo(px, 0);
+    wfCtx.lineTo(px, H);
+    wfCtx.stroke();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  오디오
+// ════════════════════════════════════════════════
+function ensureAudioContext() {
+  if (!S.audioCtx) {
+    S.audioCtx = new AudioContext();
+  }
+  if (S.audioCtx.state === 'suspended') {
+    S.audioCtx.resume();
+  }
+}
+
+async function loadAudioFile(file) {
+  ensureAudioContext();
+  const buf = await file.arrayBuffer();
+  S.audioBuffer = await S.audioCtx.decodeAudioData(buf);
+  S.totalDurationMs = S.audioBuffer.duration * 1000;
+  document.getElementById('meta-audio').value    = file.name;
+  document.getElementById('meta-duration').value = S.audioBuffer.duration.toFixed(3);
+  computeWaveform();
+  S.playOffsetMs = 0;
+  drawAll();
+}
+
+function computeWaveform() {
+  if (!S.audioBuffer) return;
+  const ch   = S.audioBuffer.getChannelData(0);
+  const step = Math.max(1, Math.floor(ch.length / WAVEFORM_BINS));
+  const data = new Float32Array(WAVEFORM_BINS);
+  for (let i = 0; i < WAVEFORM_BINS; i++) {
+    let peak = 0;
+    const base = i * step;
+    for (let j = 0; j < step; j++) {
+      const v = Math.abs(ch[base + j] || 0);
+      if (v > peak) peak = v;
+    }
+    data[i] = peak;
+  }
+  S.waveformData = data;
+}
+
+function play() {
+  if (!S.audioBuffer) return;
+  ensureAudioContext();
+  if (S.isPlaying) stop();
+  const offsetSec = Math.max(0, S.playOffsetMs / 1000);
+  S.sourceNode = S.audioCtx.createBufferSource();
+  S.sourceNode.buffer = S.audioBuffer;
+  S.sourceNode.connect(S.audioCtx.destination);
+  S.playStartAt = S.audioCtx.currentTime;
+  S.playOffsetMs = offsetSec * 1000;
+  S.sourceNode.start(0, offsetSec);
+  S.isPlaying = true;
+  S.sourceNode.onended = () => {
+    if (S.isPlaying) {
+      S.playOffsetMs = getCurrentMs();
+      S.isPlaying = false;
+    }
+  };
+  document.getElementById('btn-play').textContent = '⏸ 일시정지';
+}
+
+function stop() {
+  if (S.isPlaying && S.sourceNode) {
+    S.playOffsetMs = getCurrentMs();
+    try { S.sourceNode.stop(); } catch(e) {}
+    S.isPlaying = false;
+  }
+  document.getElementById('btn-play').textContent = '▶ 재생';
+}
+
+function seekTo(ms) {
+  const wasPlaying = S.isPlaying;
+  if (wasPlaying) stop();
+  S.playOffsetMs = Math.max(0, Math.min(ms, S.totalDurationMs));
+  if (wasPlaying) play();
+}
+
+// ════════════════════════════════════════════════
+//  애니메이션 루프
+// ════════════════════════════════════════════════
+let animFrameId = null;
+
+function animLoop() {
+  animFrameId = requestAnimationFrame(animLoop);
+
+  const curMs = getCurrentMs();
+
+  // 재생 중 자동 스크롤 (재생 헤드가 우측 1/3 지점을 넘으면 스크롤)
+  if (S.isPlaying) {
+    const threshold = S.scrollMs + (S.canvasW / S.zoom) * 0.65;
+    if (curMs > threshold) {
+      S.scrollMs = curMs - (S.canvasW / S.zoom) * 0.35;
+      clampScrollMs();
+    }
+  }
+
+  // 시간 표시 업데이트
+  lblTime.textContent = msToDisplay(curMs);
+
+  drawAll();
+}
+
+// ════════════════════════════════════════════════
+//  노트 히트 테스트
+// ════════════════════════════════════════════════
+function hitTestNote(ms, y) {
+  // y는 캔버스 상의 y좌표
+  if (y < NOTE_Y_CENTER || y > NOTE_Y_CENTER + NOTE_H) return null;
+
+  // 가장 가까운 노트 탐색
+  for (let i = S.notes.length - 1; i >= 0; i--) {
+    const n = S.notes[i];
+    if (n.type === 'tap') {
+      if (Math.abs(ms - n.time) * S.zoom <= TAP_W + 4) return { idx: i, zone: 'body' };
+    } else {
+      const end = n.time + (n.duration || 0);
+      // 끝점 핸들
+      if (Math.abs(ms - end) * S.zoom <= RESIZE_ZONE) return { idx: i, zone: 'end' };
+      // 시작점 핸들
+      if (Math.abs(ms - n.time) * S.zoom <= TAP_W + 4) return { idx: i, zone: 'start' };
+      // 바디
+      if (ms >= n.time && ms <= end) return { idx: i, zone: 'body' };
+    }
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════
+//  마우스 이벤트 (타임라인)
+// ════════════════════════════════════════════════
+tlCanvas.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  const rect = tlCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // 눈금자 클릭: 시크
+  if (y < RULER_H) {
+    const ms = xToMs(x);
+    seekTo(ms);
+    S.drag = { mode: 'seek' };
+    return;
+  }
+
+  const ms  = xToMs(x);
+  const hit = hitTestNote(ms, y);
+
+  if (hit) {
+    const note = S.notes[hit.idx];
+    if (hit.zone === 'end') {
+      S.drag = {
+        mode: 'resize',
+        noteIdx: hit.idx,
+        startX: x,
+        origDuration: note.duration || 0,
+        origTime: note.time,
+      };
+    } else {
+      S.drag = {
+        mode: 'move',
+        noteIdx: hit.idx,
+        startMs: ms,
+        origTime: note.time,
+        origDuration: note.duration,
+      };
+    }
+  } else {
+    // 새 노트 생성 시작
+    const snapped = snapMs(ms);
+    S.drag = {
+      mode: 'create-tap',
+      startMs: snapped,
+      curMs: snapped,
+    };
+  }
+});
+
+tlCanvas.addEventListener('mousemove', (e) => {
+  if (!S.drag) return;
+  const rect = tlCanvas.getBoundingClientRect();
+  const x    = e.clientX - rect.left;
+  const ms   = xToMs(x);
+
+  if (S.drag.mode === 'seek') {
+    seekTo(ms);
+    return;
+  }
+
+  if (S.drag.mode === 'create-tap' || S.drag.mode === 'create-hold') {
+    const snapped = snapMs(ms);
+    S.drag.curMs  = snapped;
+    const delta   = snapped - S.drag.startMs;
+    if (Math.abs(delta) * S.zoom > TAP_W * 2) {
+      S.drag.mode = 'create-hold';
+    } else {
+      S.drag.mode = 'create-tap';
+    }
+  } else if (S.drag.mode === 'move') {
+    const delta   = ms - S.drag.startMs;
+    let newTime   = S.drag.origTime + delta;
+    newTime       = snapMs(newTime);
+    newTime       = Math.max(0, newTime);
+    S.notes[S.drag.noteIdx].time = newTime;
+  } else if (S.drag.mode === 'resize') {
+    const note  = S.notes[S.drag.noteIdx];
+    const dur   = Math.max(MIN_HOLD_MS, snapMs(ms) - note.time);
+    note.duration = dur;
+  }
+});
+
+tlCanvas.addEventListener('mouseup', (e) => {
+  if (!S.drag) return;
+
+  if (S.drag.mode === 'create-tap') {
+    // 탭 노트 추가
+    S.notes.push({ id: S.nextId++, type: 'tap', time: S.drag.startMs });
+    updateNoteCount();
+    autoSave();
+  } else if (S.drag.mode === 'create-hold') {
+    // 홀드 노트 추가
+    const startMs = Math.min(S.drag.startMs, S.drag.curMs);
+    const endMs   = Math.max(S.drag.startMs, S.drag.curMs);
+    const dur     = Math.max(MIN_HOLD_MS, endMs - startMs);
+    S.notes.push({ id: S.nextId++, type: 'hold', time: startMs, duration: dur });
+    updateNoteCount();
+    autoSave();
+  } else if (S.drag.mode === 'move' || S.drag.mode === 'resize') {
+    autoSave();
+  }
+
+  S.drag = null;
+});
+
+tlCanvas.addEventListener('mouseleave', () => {
+  if (S.drag && (S.drag.mode === 'create-tap' || S.drag.mode === 'create-hold')) {
+    S.drag = null;
+  }
+});
+
+// 우클릭: 노트 삭제
+tlCanvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const rect = tlCanvas.getBoundingClientRect();
+  const x    = e.clientX - rect.left;
+  const y    = e.clientY - rect.top;
+  const ms   = xToMs(x);
+  const hit  = hitTestNote(ms, y);
+  if (hit) {
+    S.notes.splice(hit.idx, 1);
+    updateNoteCount();
+    autoSave();
+  }
+});
+
+// 마우스 휠: 스크롤 / Ctrl+휠: 줌
+tlCanvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (e.ctrlKey) {
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+    const mouseMs = xToMs(e.offsetX);
+    S.zoom = Math.max(0.01, Math.min(2.0, S.zoom * factor));
+    // 마우스 위치를 기준으로 줌
+    S.scrollMs = mouseMs - e.offsetX / S.zoom;
+  } else {
+    S.scrollMs += e.deltaY / S.zoom * 3;
+  }
+  clampScrollMs();
+}, { passive: false });
+
+// ════════════════════════════════════════════════
+//  마우스 이벤트 (파형)
+// ════════════════════════════════════════════════
+wfCanvas.addEventListener('mousedown', (e) => {
+  const ms = xToMs(e.offsetX);
+  seekTo(ms);
+  S.drag = { mode: 'seek-wf' };
+});
+
+wfCanvas.addEventListener('mousemove', (e) => {
+  if (S.drag?.mode === 'seek-wf') {
+    seekTo(xToMs(e.offsetX));
+  }
+});
+
+wfCanvas.addEventListener('mouseup', () => {
+  if (S.drag?.mode === 'seek-wf') S.drag = null;
+});
+
+wfCanvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  tlCanvas.dispatchEvent(new WheelEvent('wheel', e));
+}, { passive: false });
+
+// ════════════════════════════════════════════════
+//  키보드
+// ════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (S.isPlaying) stop(); else play();
+  }
+});
+
+// ════════════════════════════════════════════════
+//  컨트롤 이벤트
+// ════════════════════════════════════════════════
+document.getElementById('btn-open-audio').addEventListener('click', () => {
+  document.getElementById('file-audio').click();
+});
+
+document.getElementById('file-audio').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) loadAudioFile(file);
+  e.target.value = '';
+});
+
+document.getElementById('btn-play').addEventListener('click', () => {
+  ensureAudioContext();
+  if (S.isPlaying) stop(); else play();
+});
+
+document.getElementById('btn-stop').addEventListener('click', () => {
+  stop();
+  S.playOffsetMs = 0;
+});
+
+inpBpm.addEventListener('input', () => {
+  const v = parseInt(inpBpm.value);
+  if (v >= 30 && v <= 300) {
+    S.bpm = v;
+    syncBpmInputs();
+  }
+});
+
+selSnap.addEventListener('change', () => {
+  S.snapDenom = parseInt(selSnap.value);
+});
+
+// ════════════════════════════════════════════════
+//  JSON 저장
+// ════════════════════════════════════════════════
+document.getElementById('btn-save').addEventListener('click', () => {
+  const sorted = [...S.notes].sort((a, b) => a.time - b.time);
+  const notesOut = sorted.map((n, idx) => {
+    const obj = { id: idx, type: n.type, time: Math.round(n.time) };
+    if (n.type === 'hold') obj.duration = Math.round(n.duration || 0);
+    return obj;
+  });
+
+  const difficulty = document.getElementById('meta-difficulty').value;
+  const output = {
+    meta: {
+      title:      document.getElementById('meta-title').value   || 'Untitled',
+      artist:     document.getElementById('meta-artist').value  || 'Unknown',
+      difficulty: difficulty,
+      bpm:        S.bpm,
+      duration:   parseFloat(document.getElementById('meta-duration').value) || 0,
+      audio_file: document.getElementById('meta-audio').value   || '',
+      charter:    document.getElementById('meta-charter').value || 'dev',
+      version:    '1.0',
+    },
+    notes: notesOut,
+  };
+
+  const json = JSON.stringify(output, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+
+  // 기본 파일명 제안
+  const defaultName = `ep1_ch1_stage1_${difficulty}.json`;
+  const filename = prompt('저장할 파일명:', defaultName);
+  if (!filename) { URL.revokeObjectURL(url); return; }
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ════════════════════════════════════════════════
+//  새 채보
+// ════════════════════════════════════════════════
+document.getElementById('btn-new').addEventListener('click', () => {
+  if (!confirm('현재 작업을 초기화하시겠습니까?')) return;
+  S.notes = [];
+  S.nextId = 0;
+  S.playOffsetMs = 0;
+  stop();
+  updateNoteCount();
+  localStorage.removeItem(LS_KEY);
+  drawAll();
+});
+
+// ════════════════════════════════════════════════
+//  LocalStorage 자동 저장 / 복구
+// ════════════════════════════════════════════════
+function buildSaveData() {
+  return {
+    notes: S.notes,
+    nextId: S.nextId,
+    bpm: S.bpm,
+    snapDenom: S.snapDenom,
+    zoom: S.zoom,
+    scrollMs: S.scrollMs,
+    meta: {
+      title:      document.getElementById('meta-title').value,
+      artist:     document.getElementById('meta-artist').value,
+      difficulty: document.getElementById('meta-difficulty').value,
+      charter:    document.getElementById('meta-charter').value,
+    },
+  };
+}
+
+function autoSave() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(buildSaveData()));
+  } catch(e) { /* 저장 공간 부족 등 */ }
+}
+
+function autoLoad() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data) return;
+
+    if (Array.isArray(data.notes)) S.notes  = data.notes;
+    if (typeof data.nextId === 'number') S.nextId = data.nextId;
+    if (typeof data.bpm    === 'number') { S.bpm = data.bpm; inpBpm.value = S.bpm; syncBpmInputs(); }
+    if (typeof data.snapDenom === 'number') { S.snapDenom = data.snapDenom; selSnap.value = S.snapDenom; }
+    if (typeof data.zoom   === 'number') S.zoom      = data.zoom;
+    if (typeof data.scrollMs === 'number') S.scrollMs = data.scrollMs;
+    if (data.meta) {
+      if (data.meta.title)      document.getElementById('meta-title').value      = data.meta.title;
+      if (data.meta.artist)     document.getElementById('meta-artist').value     = data.meta.artist;
+      if (data.meta.difficulty) document.getElementById('meta-difficulty').value = data.meta.difficulty;
+      if (data.meta.charter)    document.getElementById('meta-charter').value    = data.meta.charter;
+    }
+    updateNoteCount();
+    console.log(`[에디터] 자동 저장 복구: 노트 ${S.notes.length}개`);
+  } catch(e) {
+    console.warn('[에디터] 자동 저장 복구 실패:', e);
+  }
+}
+
+setInterval(autoSave, AUTOSAVE_INTERVAL_MS);
+
+// ════════════════════════════════════════════════
+//  오디오 파일 드래그 & 드롭
+// ════════════════════════════════════════════════
+const overlay = document.getElementById('drop-overlay');
+let dragCounter = 0;
+
+document.addEventListener('dragenter', (e) => {
+  e.preventDefault();
+  if (e.dataTransfer.types.includes('Files')) {
+    dragCounter++;
+    overlay.classList.add('active');
+  }
+});
+document.addEventListener('dragleave', () => {
+  dragCounter = Math.max(0, dragCounter - 1);
+  if (dragCounter === 0) overlay.classList.remove('active');
+});
+document.addEventListener('dragover', (e) => e.preventDefault());
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  overlay.classList.remove('active');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('audio/')) {
+    loadAudioFile(file);
+  }
+});
+
+// ════════════════════════════════════════════════
+//  리사이즈 옵저버
+// ════════════════════════════════════════════════
+const ro = new ResizeObserver(() => resizeCanvases());
+ro.observe(canvasWrap);
+
+// ════════════════════════════════════════════════
+//  초기화
+// ════════════════════════════════════════════════
+(function init() {
+  S.bpm      = parseInt(inpBpm.value) || 120;
+  S.snapDenom = parseInt(selSnap.value) || 4;
+  autoLoad();
+  resizeCanvases();
+  animLoop();
+})();
+</script>
+</body>
+</html>
