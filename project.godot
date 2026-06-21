@@ -6,7 +6,7 @@
 
 config/name="NeoRhythm"
 config/features=PackedStringArray("4.2", "GL Compatibility")
-run/main_scene="res://scenes/GameScene.tscn"
+run/main_scene="res://scenes/TitleScreen.tscn"
 
 [display]
 
@@ -14,6 +14,12 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
+
+[autoload]
+
+GameSettings="*res://scripts/GameSettings.gd"
+SaveManager="*res://scripts/SaveManager.gd"
+GameContext="*res://scripts/GameContext.gd"
 
 [rendering]
 

@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - claude/godot-web-build-export-2oftqs
+      - claude/second-prototype-impl-qnul48
   workflow_dispatch:
 
 permissions:
