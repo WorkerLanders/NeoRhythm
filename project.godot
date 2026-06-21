@@ -21,6 +21,10 @@ GameSettings="*res://scripts/GameSettings.gd"
 SaveManager="*res://scripts/SaveManager.gd"
 GameContext="*res://scripts/GameContext.gd"
 
+[gui]
+
+theme/custom="res://Resources/theme.tres"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
