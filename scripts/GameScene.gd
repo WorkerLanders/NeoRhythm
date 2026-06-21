@@ -80,12 +80,25 @@ func _build_ui() -> void:
 		lane_bg.position = Vector2(0.0, LANE_Y[i] - LANE_H * 0.5 + 2.0)
 		add_child(lane_bg)
 
-	# Judgment line
-	var jline := ColorRect.new()
-	jline.color    = Color(1.0, 1.0, 0.0, 0.9)
-	jline.size     = Vector2(4.0, LANE_Y[3] - LANE_Y[0] + LANE_H)
-	jline.position = Vector2(JUDGMENT_LINE_X - 2.0, LANE_Y[0] - LANE_H * 0.5)
-	add_child(jline)
+	# Judgment zone (width = note width)
+	var zone_x := JUDGMENT_LINE_X - Note.NOTE_W * 0.5
+	var zone_y := LANE_Y[0] - LANE_H * 0.5
+	var zone_h := LANE_Y[3] - LANE_Y[0] + LANE_H
+	var jzone := ColorRect.new()
+	jzone.color    = Color(1.0, 1.0, 0.0, 0.12)
+	jzone.size     = Vector2(Note.NOTE_W, zone_h)
+	jzone.position = Vector2(zone_x, zone_y)
+	add_child(jzone)
+	var jline_l := ColorRect.new()
+	jline_l.color    = Color(1.0, 1.0, 0.0, 0.9)
+	jline_l.size     = Vector2(2.0, zone_h)
+	jline_l.position = Vector2(zone_x, zone_y)
+	add_child(jline_l)
+	var jline_r := ColorRect.new()
+	jline_r.color    = Color(1.0, 1.0, 0.0, 0.5)
+	jline_r.size     = Vector2(2.0, zone_h)
+	jline_r.position = Vector2(zone_x + Note.NOTE_W - 2.0, zone_y)
+	add_child(jline_r)
 
 	# Score & Combo
 	_lbl_score    = _make_label("0",  Vector2(900.0, 20.0), 32)
@@ -214,7 +227,16 @@ func _handle_press() -> void:
 	if best_note == null or abs(best_delta) > JudgmentSystem.GOOD_MS:
 		return
 
-	var judgment : String = JudgmentSystem.judge(best_delta)
+	var judgment : String
+	var spatial_dist := absf(best_note.position.x - JUDGMENT_LINE_X)
+	if spatial_dist <= Note.NOTE_W * 0.5:
+		judgment = "PERFECT"
+	else:
+		var d := absi(best_delta)
+		if d <= JudgmentSystem.GREAT_MS:
+			judgment = "GREAT"
+		else:
+			judgment = "GOOD"
 
 	if best_note.note_type == "hold":
 		_active_notes.erase(best_note)
