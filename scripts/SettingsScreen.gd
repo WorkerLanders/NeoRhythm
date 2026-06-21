@@ -25,9 +25,9 @@ func _ready() -> void:
 
 func _find_closest(arr: PackedFloat32Array, value: float) -> int:
 	var best := 0
-	var best_d := abs(arr[0] - value)
+	var best_d : float = abs(arr[0] - value)
 	for i in range(1, arr.size()):
-		var d := abs(arr[i] - value)
+		var d : float = abs(arr[i] - value)
 		if d < best_d:
 			best_d = d
 			best   = i
