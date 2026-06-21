@@ -5,6 +5,8 @@ signal missed(note: Note)
 
 const JUDGMENT_LINE_X : float = 192.0
 const MISS_PAST_PX    : float = 60.0
+const NOTE_W          : float = 30.0
+const NOTE_H          : float = 70.0
 
 var time_ms     : int    = 0
 var note_type   : String = "tap"
@@ -36,22 +38,22 @@ func _build_visual() -> void:
 		var body := ColorRect.new()
 		body.name     = "Body"
 		body.color    = Color(1.0, 0.55, 0.1, 0.75)
-		body.size     = Vector2(body_width, 36.0)
-		body.position = Vector2(0.0, -18.0)
+		body.size     = Vector2(body_width, NOTE_H - 20.0)
+		body.position = Vector2(0.0, -(NOTE_H - 20.0) * 0.5)
 		add_child(body)
 		# Head cap rendered on top of body
 		var head := ColorRect.new()
 		head.name     = "Visual"
 		head.color    = Color(1.0, 0.85, 0.1, 1.0)
-		head.size     = Vector2(50.0, 50.0)
-		head.position = Vector2(-25.0, -25.0)
+		head.size     = Vector2(NOTE_W, NOTE_H)
+		head.position = Vector2(-NOTE_W * 0.5, -NOTE_H * 0.5)
 		add_child(head)
 	else:
 		var vis := ColorRect.new()
 		vis.name     = "Visual"
 		vis.color    = Color(1.0, 0.85, 0.1, 1.0)
-		vis.size     = Vector2(50.0, 50.0)
-		vis.position = Vector2(-25.0, -25.0)
+		vis.size     = Vector2(NOTE_W, NOTE_H)
+		vis.position = Vector2(-NOTE_W * 0.5, -NOTE_H * 0.5)
 		add_child(vis)
 
 func _process(delta: float) -> void:
